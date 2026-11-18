@@ -1,0 +1,448 @@
+{
+  "name": "Reddit forhire leads",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Reddit forhire leads\n\n### How it works\n\n1. Triggers on a schedule to initiate the workflow.\n2. Runs an Apify actor to fetch data.\n3. Filters and processes dataset items.\n4. Checks for existing records in the database.\n5. Sends a message via a model and manages outputs based on conditions.\n\n### Setup steps\n\n- [ ] Set up Apify credentials to execute the actor and fetch data.\n- [ ] Configure OpenAI API keys for the 'Message a model' node.\n- [ ] Set up Telegram bot API keys for sending messages.\n- [ ] Configure database access permissions for the dataTable nodes.\n",
+        "height": 608,
+        "width": 480
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3312,
+        16
+      ],
+      "id": "f7e46e70-78a1-4b4a-9d20-5b4d4c21aa21",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Scheduled data retrieval\n\nTriggers workflow and runs Apify actor to fetch data.",
+        "height": 304,
+        "width": 416,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3872,
+        32
+      ],
+      "id": "28b73394-f2e0-4b0b-8dc8-11dfcbb370bb",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Data processing\n\nRetrieves and filters dataset items for further analysis.",
+        "height": 304,
+        "width": 416,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4320,
+        32
+      ],
+      "id": "17721f97-68d7-4d16-aa22-5fa40851d537",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Database check and messaging\n\nChecks for record existence, sends a message using AI, and inserts new data.",
+        "height": 432,
+        "width": 736,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4768,
+        48
+      ],
+      "id": "a0586c0b-ef6a-4aec-8ff9-b27361280ba4",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Conditional notification\n\nEvaluates condition and sends a notification through Telegram.",
+        "height": 320,
+        "width": 368,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5536,
+        16
+      ],
+      "id": "6aee3873-a8b3-4adb-a145-04ebc0bdc52b",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "actorSource": "store",
+        "actorId": {
+          "__rl": true,
+          "value": "9sHOY9RzPYGjmTHo8",
+          "mode": "list",
+          "cachedResultName": "Reddit Scraper - Posts, Comments, Search & Subreddits (harshmaur/reddit-scraper)",
+          "cachedResultUrl": "https://console.apify.com/actors/9sHOY9RzPYGjmTHo8/input"
+        },
+        "customBody": "{\n  \"startUrls\": [{\"url\": \"https://www.reddit.com/r/forhire/new\"}]\n}"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 2,
+      "position": [
+        4144,
+        160
+      ],
+      "id": "efc50266-af09-4182-ba3a-0cf4489e3434",
+      "name": "Execute Apify Actor"
+    },
+    {
+      "parameters": {
+        "resource": "Datasets",
+        "datasetId": "={{ $json.defaultDatasetId }}",
+        "options": {
+          "fields": ""
+        }
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 2,
+      "position": [
+        4368,
+        160
+      ],
+      "id": "00744939-5a91-42da-a034-88cf965e6584",
+      "name": "Retrieve Dataset Items"
+    },
+    {
+      "parameters": {
+        "operation": "rowNotExists",
+        "dataTableId": {
+          "__rl": true,
+          "value": "6M68hWvcGHXMx0lj",
+          "mode": "list",
+          "cachedResultName": "r/forhire Leads",
+          "cachedResultUrl": "/projects/238qgONdpUsDadsQ/datatables/6M68hWvcGHXMx0lj"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "post_id",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        4816,
+        160
+      ],
+      "id": "52670710-9310-45a4-a71d-d8827ad1dfba",
+      "name": "Check Row Existence"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=You are a robot who is successful at understanding if a task can be automated using n8n. You receive a reddit post from the user, explaining the details of a task. You need to output only a YES or NO given the details of task."
+            },
+            {
+              "content": "={{ $json.body }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        5008,
+        160
+      ],
+      "id": "64b9e4f4-ab18-442d-80a3-d5a60249be5b",
+      "name": "Trigger OpenAI Model"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "da32b536-c5c9-4700-af82-2a7f85f9dd19",
+              "leftValue": "={{ $json.title.toUpperCase() }}",
+              "rightValue": "HIRING",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        4592,
+        160
+      ],
+      "id": "4f70700a-f60e-474b-b55b-c38273f99a53",
+      "name": "Filter Dataset Items"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "6M68hWvcGHXMx0lj",
+          "mode": "list",
+          "cachedResultName": "r/forhire Leads",
+          "cachedResultUrl": "/projects/238qgONdpUsDadsQ/datatables/6M68hWvcGHXMx0lj"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "post_id": "={{ $('Check Row Existence').item.json.id }}",
+            "post_url": "={{ $('Check Row Existence').item.json.contentUrl }}",
+            "post_suitable": "={{ $json.output[0].content[0].text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "post_id",
+              "displayName": "post_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "post_url",
+              "displayName": "post_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "post_suitable",
+              "displayName": "post_suitable",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        5360,
+        320
+      ],
+      "id": "bb316727-998b-46b8-99ef-20355043822d",
+      "name": "Insert New Row"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "19969ee7-4999-4bf6-9393-daf904668f09",
+              "leftValue": "={{ $json.output[0].content[0].text }}",
+              "rightValue": "YES",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        5584,
+        160
+      ],
+      "id": "e3b9e042-f1ed-4ce9-864b-a339c132cbbb",
+      "name": "Evaluate Model Output"
+    },
+    {
+      "parameters": {
+        "chatId": "8853967964",
+        "text": "={{ $('Check Row Existence').item.json.title }}\n\n{{ $('Check Row Existence').item.json.contentUrl }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_web_page_preview": true,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5760,
+        144
+      ],
+      "id": "ff4b95b5-bf5d-46b4-b31f-85ee12f638f1",
+      "name": "Send Telegram Message",
+      "webhookId": "ab76d4ff-9078-4c4a-9289-30202e9c650b"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 12
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        3920,
+        160
+      ],
+      "id": "0af06870-dd43-4f91-8bbc-58aabf947c4b",
+      "name": "Every 12 Hours Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Apify Actor": {
+      "main": [
+        [
+          {
+            "node": "Retrieve Dataset Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Dataset Items": {
+      "main": [
+        [
+          {
+            "node": "Filter Dataset Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Row Existence": {
+      "main": [
+        [
+          {
+            "node": "Trigger OpenAI Model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Dataset Items": {
+      "main": [
+        [
+          {
+            "node": "Check Row Existence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger OpenAI Model": {
+      "main": [
+        [
+          {
+            "node": "Insert New Row",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Evaluate Model Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Model Output": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 12 Hours Trigger": {
+      "main": [
+        [
+          {
+            "node": "Execute Apify Actor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d30ae1b9-8581-4a65-898a-44b554dd207e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4d2732bc51b128e161db72893dab0c73b713b831498d4006bb9050df1abb4156"
+  },
+  "nodeGroups": [],
+  "id": "oxlKzRujGASK6YE0",
+  "tags": []
+}
